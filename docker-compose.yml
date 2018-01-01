@@ -1,0 +1,41 @@
+version: '3'
+services:
+  rabbit:
+    image: rabbitmq:3-management
+    hostname: rabbit
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  mongo:
+    image: mongo:3.6
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./containers/mongo/data:/data/db
+
+  worker:
+    build:
+      context: ./worker
+    environment:
+      PLAID_CLIENT_ID:
+      PLAID_SECRET:
+      PLAID_PUBLIC_KEY:
+      PLAID_ENV: sandbox
+      COINBASE_KEY:
+      COINBASE_SECRET:
+    volumes:
+      - ./worker:/app
+    depends_on:
+      - rabbit
+      - mongo
+
+  flower:
+    image: crgwbr/docker-celery-flower
+    environment:
+      CELERY_BROKER_URL: amqp://rabbitmq:rabbitmq@rabbit:5672
+    ports:
+      - "5555:5555"

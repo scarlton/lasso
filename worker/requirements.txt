@@ -1,0 +1,4 @@
+celery==4.1.0
+pymongo==3.6.0
+plaid-python==2.1.1
+# coinbase
